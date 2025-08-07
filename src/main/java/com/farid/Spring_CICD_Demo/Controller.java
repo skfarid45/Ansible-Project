@@ -5,8 +5,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class Controller {
- @GetMapping("/Message")
+ @GetMapping("/message")
     public String getMessage(){
      return "Hello , I am Shaik Fariddddd";
  }
+  @GetMapping("/status")
+    public String getStatus(){
+     return " Application is running.....";
+ }
 }
+
