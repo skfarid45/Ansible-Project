@@ -1,0 +1,16 @@
+---
+- name: Deploy WAR to Tomcat Server
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Copy WAR file to Tomcat webapps
+      copy:
+        src: "{{ workspace }}/target/myapp.war"
+        dest: /opt/tomcat10/webapps/myapp.war
+        mode: '0644'
+
+    - name: Restart Tomcat service
+      service:
+        name: tomcat
+        state: restarted
