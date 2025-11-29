@@ -30,9 +30,5 @@ pipeline {
                 sh """
                    ansible-playbook ansible/deploy.yml \
                    -i ansible/inventory \
+                   --private-key=/var/lib/jenkins/.ssh/farid.pem \
                    --extra-vars 'workspace=${WORKSPACE_PATH}'
-                """
-            }
-        }
-    }
-}
