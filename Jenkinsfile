@@ -32,3 +32,8 @@ pipeline {
                    -i ansible/inventory \
                    --private-key=/var/lib/jenkins/.ssh/farid.pem \
                    --extra-vars 'workspace=${WORKSPACE_PATH}'
+                """
+            }
+        }
+    }
+}
