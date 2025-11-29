@@ -7,7 +7,7 @@
     - name: Copy WAR file to Tomcat webapps
       copy:
         src: "{{ workspace }}/target/myapp.war"
-        dest: /opt/tomcat10/webapps/farid-ansible.war
+        dest: /opt/tomcat10/webapps/Farid-Ansible.war
         mode: '0644'
 
     - name: Restart Tomcat service
