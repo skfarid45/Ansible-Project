@@ -1,11 +1,18 @@
 pipeline {
     agent any
 
+    tools {
+        jdk 'java'
+        maven 'apache-maven'
+        git 'Git'
+    }
+
     environment {
         WORKSPACE_PATH = "${env.WORKSPACE}"
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/skfarid45/Ansible-Project.git'
@@ -14,7 +21,7 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                sh 'mvn clean package'
+                sh "mvn clean package"
             }
         }
 
@@ -29,4 +36,3 @@ pipeline {
         }
     }
 }
-
