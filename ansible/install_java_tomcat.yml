@@ -22,7 +22,7 @@
 
     - name: Download Apache Tomcat 9
       get_url:
-        url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.93/bin/apache-tomcat-9.0.93.tar.gz
+        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.49/bin/apache-tomcat-10.1.49-fulldocs.tar.gz
         dest: /tmp/apache-tomcat.tar.gz
 
     - name: Extract Tomcat files
@@ -32,9 +32,9 @@
         remote_src: yes
 
     - name: Rename extracted folder to tomcat
-      command: mv /opt/tomcat/apache-tomcat-9.0.93 /opt/tomcat/latest
+      command: mv /opt/tomcat/apache-tomcat-10.1.49 /opt/tomcat/latest
       args:
-        removes: /opt/tomcat/apache-tomcat-9.0.93
+        removes: /opt/tomcat/apache-tomcat-10.1.49
 
     - name: Change permissions for Tomcat user
       file:
