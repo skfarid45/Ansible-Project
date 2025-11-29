@@ -1,12 +1,12 @@
 ---
-- name: Install Java & Tomcat
+- name: Install Java 17 and Tomcat on Amazon Linux 2023
   hosts: webservers
   become: yes
 
   tasks:
-    - name: Install Java (OpenJDK 11)
-      package:
-        name: java-11-openjdk-devel
+    - name: Install Java 17 (Amazon Corretto)
+      dnf:
+        name: java-17-amazon-corretto
         state: present
 
     - name: Create Tomcat group
@@ -18,27 +18,32 @@
         name: tomcat
         group: tomcat
         home: /opt/tomcat
-        shell: /bin/nologin
+        create_home: yes
 
-    - name: Download Tomcat
+    - name: Download Apache Tomcat 9
       get_url:
-        url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.93/bin/apache-tomcat-9.0.93.tar.gz
-        dest: /tmp/tomcat.tar.gz
+        url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.93/bin/apache-tomcat-9.0.93.tar.gz
+        dest: /tmp/apache-tomcat.tar.gz
 
-    - name: Extract Tomcat archive
+    - name: Extract Tomcat files
       unarchive:
-        src: /tmp/tomcat.tar.gz
-        dest: /opt/
+        src: /tmp/apache-tomcat.tar.gz
+        dest: /opt/tomcat
         remote_src: yes
 
-    - name: Rename Tomcat folder
-      command: mv /opt/apache-tomcat-9.0.93 /opt/tomcat
+    - name: Rename extracted folder to tomcat
+      command: mv /opt/tomcat/apache-tomcat-9.0.93 /opt/tomcat/latest
       args:
-        creates: /opt/tomcat
+        removes: /opt/tomcat/apache-tomcat-9.0.93
 
-    - name: Change Tomcat ownership
+    - name: Change permissions for Tomcat user
       file:
         path: /opt/tomcat
+        state: directory
+        recurse: yes
         owner: tomcat
         group: tomcat
-        recurse: yes
+
+    - name: Start Tomcat server
+      shell: nohup /opt/tomcat/latest/bin/startup.sh &
+
