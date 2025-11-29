@@ -1,3 +1,3 @@
 [webservers]
 172.31.17.8 ansible_user=ec2-user
-ansible_ssh_private_key_file=~/.ssh/farid.pem
+ansible_ssh_private_key_file=/var/lib/jenkins/.ssh/farid.pem
