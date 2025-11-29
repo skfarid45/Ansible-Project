@@ -21,12 +21,12 @@ pipeline {
         stage('Deploy using Ansible') {
             steps {
                 sh """
-                ansible-playbook ansible/deploy.yml \
-                -i ansible/inventory \
-                --extra-vars "workspace=${WORKSPACE_PATH}"
+                   ansible-playbook ansible/deploy.yml \
+                   -i ansible/inventory \
+                   --extra-vars 'workspace=${WORKSPACE_PATH}'
                 """
-            """
             }
         }
     }
 }
+
