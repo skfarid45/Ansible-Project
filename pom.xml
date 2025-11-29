@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.farid</groupId>
-	<artifactId>Spring-CICD-Demo</artifactId>
+	<artifactId>Farid-Ansible</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>Spring-CICD-Demo</name>
+	<name>Farid-Ansible</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>
@@ -55,7 +55,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-		<finalName>Farid-Spring-App</finalName>
+		<finalName>Farid-Ansible</finalName>
 	</build>
 
 </project>
