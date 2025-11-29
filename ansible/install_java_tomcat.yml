@@ -1,0 +1,44 @@
+---
+- name: Install Java & Tomcat
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Java (OpenJDK 11)
+      package:
+        name: java-11-openjdk-devel
+        state: present
+
+    - name: Create Tomcat group
+      group:
+        name: tomcat
+
+    - name: Create Tomcat user
+      user:
+        name: tomcat
+        group: tomcat
+        home: /opt/tomcat
+        shell: /bin/nologin
+
+    - name: Download Tomcat
+      get_url:
+        url: https://downloads.apache.org/tomcat/tomcat-9/v9.0.93/bin/apache-tomcat-9.0.93.tar.gz
+        dest: /tmp/tomcat.tar.gz
+
+    - name: Extract Tomcat archive
+      unarchive:
+        src: /tmp/tomcat.tar.gz
+        dest: /opt/
+        remote_src: yes
+
+    - name: Rename Tomcat folder
+      command: mv /opt/apache-tomcat-9.0.93 /opt/tomcat
+      args:
+        creates: /opt/tomcat
+
+    - name: Change Tomcat ownership
+      file:
+        path: /opt/tomcat
+        owner: tomcat
+        group: tomcat
+        recurse: yes
