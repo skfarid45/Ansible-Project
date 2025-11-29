@@ -9,7 +9,6 @@ pipeline {
 
     environment {
         WORKSPACE_PATH = "${env.WORKSPACE}"
-        WAR_NAME = "Farid-Ansible.war"
     }
 
     stages {
@@ -22,29 +21,20 @@ pipeline {
 
         stage('Build WAR') {
             steps {
-                sh "mvn clean package -DskipTests"
-                echo "WAR built: target/${WAR_NAME}"
+                sh "mvn clean package"
             }
         }
 
-        stage('Deploy using Ansible') {
+        stage('Deploy to Tomcat using Ansible') {
             steps {
                 sh """
-                    ansible-playbook ansible/deploy.yml \
-                    -i ansible/inventory \
-                    --private-key=/var/lib/jenkins/.ssh/farid.pem \
-                    --extra-vars "workspace=${WORKSPACE_PATH} war_name=${WAR_NAME}"
+                   ansible-playbook ansible/deploy.yml \
+                   -i ansible/inventory \
+                   --private-key=/var/lib/jenkins/.ssh/farid.pem \
+                   --extra-vars "workspace=${WORKSPACE_PATH}"
                 """
             }
         }
     }
-
-    post {
-        success {
-            echo "Deployment Completed Successfully!"
-        }
-        failure {
-            echo "Deployment Failed!"
-        }
-    }
 }
+
