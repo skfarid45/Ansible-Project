@@ -1,89 +1,32 @@
-- name: Install Tomcat and deploy WAR
+---
+- name: Deploy Spring Boot WAR to Tomcat
   hosts: webservers
   become: yes
 
   vars:
-    tomcat_version: 10.1.15
-    tomcat_install_dir: /opt/tomcat10
-    tomcat_service_name: tomcat
-    war_name: Farid-Ansible.war
+    app_name: Farid-Ansible
 
   tasks:
-
-    # 1. Install Java (OpenJDK 17)
-    - name: Install OpenJDK 17
-      package:
-        name: java-17-openjdk
-        state: present
-
-    # 2. Download Tomcat
-    - name: Download Tomcat tar.gz
-      get_url:
-        url: "https://downloads.apache.org/tomcat/tomcat-10/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
-        dest: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
-        mode: '0644'
-
-    # 3. Extract Tomcat
-    - name: Extract Tomcat
-      unarchive:
-        src: /tmp/apache-tomcat-{{ tomcat_version }}.tar.gz
-        dest: /opt/
-        remote_src: yes
-        creates: "{{ tomcat_install_dir }}"
-
-    # 4. Rename extracted folder to standard path
-    - name: Rename Tomcat folder
-      command: mv /opt/apache-tomcat-{{ tomcat_version }} {{ tomcat_install_dir }}
-      args:
-        removes: /opt/apache-tomcat-{{ tomcat_version }}
+    - name: Stop Tomcat
+      shell: "sh /opt/tomcat/bin/shutdown.sh"
       ignore_errors: yes
 
-    # 5. Ensure Tomcat webapps directory exists
-    - name: Ensure webapps directory exists
+    - name: Remove old WAR
       file:
-        path: "{{ tomcat_install_dir }}/webapps"
-        state: directory
-        mode: '0755'
+        path: "/opt/tomcat/webapps/{{ app_name }}.war"
+        state: absent
+      ignore_errors: yes
 
-    # 6. Copy WAR file
-    - name: Copy WAR file to Tomcat webapps
+    - name: Remove exploded app folder
+      file:
+        path: "/opt/tomcat/webapps/{{ app_name }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Copy new WAR
       copy:
-        src: "{{ workspace }}/target/{{ war_name }}"
-        dest: "{{ tomcat_install_dir }}/webapps/{{ war_name }}"
-        mode: '0644'
-
-    # 7. Create a systemd service for Tomcat
-    - name: Create Tomcat systemd service
-      copy:
-        dest: /etc/systemd/system/{{ tomcat_service_name }}.service
-        content: |
-          [Unit]
-          Description=Apache Tomcat Web Application Container
-          After=network.target
-
-          [Service]
-          Type=forking
-          Environment=JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-          Environment=CATALINA_PID={{ tomcat_install_dir }}/temp/tomcat.pid
-          Environment=CATALINA_HOME={{ tomcat_install_dir }}
-          Environment=CATALINA_BASE={{ tomcat_install_dir }}
-          ExecStart={{ tomcat_install_dir }}/bin/startup.sh
-          ExecStop={{ tomcat_install_dir }}/bin/shutdown.sh
-          User=root
-          Group=root
-          Restart=on-failure
-
-          [Install]
-          WantedBy=multi-user.target
-      notify: Reload systemd
-
-  handlers:
-    - name: Reload systemd
-      command: systemctl daemon-reload
+        src: "../target/Farid-Ansible.war"
+        dest: "/opt/tomcat/webapps/Farid-Ansible.war"
 
     - name: Start Tomcat
-      service:
-        name: "{{ tomcat_service_name }}"
-        state: restarted
-        enabled: yes
-
+      shell: "nohup sh /opt/tomcat/bin/startup.sh &"
