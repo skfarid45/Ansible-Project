@@ -1,32 +1,16 @@
 ---
-- name: Deploy Spring Boot WAR to Tomcat
+- name: Deploy Java WAR to Tomcat
   hosts: webservers
   become: yes
 
-  vars:
-    app_name: Farid-Ansible
-
   tasks:
-    - name: Stop Tomcat
-      shell: "sh /opt/tomcat/bin/shutdown.sh"
-      ignore_errors: yes
-
-    - name: Remove old WAR
-      file:
-        path: "/opt/tomcat/webapps/{{ app_name }}.war"
-        state: absent
-      ignore_errors: yes
-
-    - name: Remove exploded app folder
-      file:
-        path: "/opt/tomcat/webapps/{{ app_name }}"
-        state: absent
-      ignore_errors: yes
-
-    - name: Copy new WAR
+    - name: Copy WAR file
       copy:
-        src: "../target/Farid-Ansible.war"
-        dest: "/opt/tomcat/webapps/Farid-Ansible.war"
+        src: /var/lib/jenkins/workspace/Ansible-Project/target/Farid-Ansible.war
+        dest: /opt/tomcat/latest/webapps/Farid-Ansible.war
+        owner: tomcat
+        group: tomcat
+        mode: '0644'
 
-    - name: Start Tomcat
-      shell: "nohup sh /opt/tomcat/bin/startup.sh &"
+    - name: Restart Tomcat
+      shell: nohup /opt/tomcat/latest/bin/shutdown.sh && nohup /opt/tomcat/latest/bin/startup.sh &
