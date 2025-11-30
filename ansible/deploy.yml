@@ -7,10 +7,10 @@
     - name: Copy WAR file
       copy:
         src: /var/lib/jenkins/workspace/Ansible-Project/target/Farid-Ansible.war
-        dest: /opt/tomcat/webapps/Farid-Ansible.war
+        dest: /opt/tomcat/latest/webapps/Farid-Ansible.war
         owner: tomcat
         group: tomcat
         mode: '0644'
 
     - name: Restart Tomcat
-      shell: nohup /opt/tomcat/bin/shutdown.sh && nohup /opt/tomcat/bin/startup.sh &
+      shell: nohup /opt/tomcat/latest/bin/shutdown.sh && nohup /opt/tomcat/latest/bin/startup.sh &
