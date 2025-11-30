@@ -1,7 +1,10 @@
 ---
-- name: Install Java 17 and Tomcat on Amazon Linux 2023
+- name: Install Java 17 and Tomcat 10 on Amazon Linux 2023
   hosts: webservers
   become: yes
+
+  vars:
+    tomcat_version: 10.1.49
 
   tasks:
     - name: Install Java 17 (Amazon Corretto)
@@ -19,11 +22,17 @@
         group: tomcat
         home: /opt/tomcat
         create_home: yes
+        shell: /bin/false
 
-    - name: Download Apache Tomcat 9
+    - name: Download Apache Tomcat
       get_url:
-        url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.49/bin/apache-tomcat-10.1.49-fulldocs.tar.gz
+        url: "https://dlcdn.apache.org/tomcat/tomcat-10/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
         dest: /tmp/apache-tomcat.tar.gz
+
+    - name: Create Tomcat directory
+      file:
+        path: /opt/tomcat
+        state: directory
 
     - name: Extract Tomcat files
       unarchive:
@@ -31,12 +40,12 @@
         dest: /opt/tomcat
         remote_src: yes
 
-    - name: Rename extracted folder to tomcat
-      command: mv /opt/tomcat/apache-tomcat-10.1.49 /opt/tomcat/latest
+    - name: Rename Tomcat folder
+      command: mv /opt/tomcat/apache-tomcat-{{ tomcat_version }} /opt/tomcat/latest
       args:
-        removes: /opt/tomcat/apache-tomcat-10.1.49
+        removes: /opt/tomcat/apache-tomcat-{{ tomcat_version }}
 
-    - name: Change permissions for Tomcat user
+    - name: Change ownership of Tomcat directory
       file:
         path: /opt/tomcat
         state: directory
@@ -44,6 +53,44 @@
         owner: tomcat
         group: tomcat
 
-    - name: Start Tomcat server
-      shell: nohup /opt/tomcat/latest/bin/startup.sh &
+    - name: Make Tomcat scripts executable
+      file:
+        path: /opt/tomcat/latest/bin
+        mode: "0755"
+        recurse: yes
+
+    - name: Create systemd service for Tomcat
+      copy:
+        dest: /etc/systemd/system/tomcat.service
+        content: |
+          [Unit]
+          Description=Apache Tomcat Web Application Container
+          After=network.target
+
+          [Service]
+          Type=forking
+
+          User=tomcat
+          Group=tomcat
+          Environment="JAVA_HOME=/usr/lib/jvm/jre-17"
+          Environment="CATALINA_HOME=/opt/tomcat/latest"
+          Environment="CATALINA_BASE=/opt/tomcat/latest"
+          ExecStart=/opt/tomcat/latest/bin/startup.sh
+          ExecStop=/opt/tomcat/latest/bin/shutdown.sh
+          Restart=on-failure
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Start Tomcat
+      systemd:
+        name: tomcat
+        state: started
+        enabled: yes
+
+
 
