@@ -92,7 +92,7 @@
         state: started
         enabled: yes
 
-    # ------------------ TOMCAT MANAGER CONFIG FIX ------------------
+    # ------------------ TOMCAT MANAGER CONFIG ------------------
 
     - name: Add Tomcat Manager user
       blockinfile:
@@ -101,7 +101,7 @@
         content: |
           <role rolename="manager-gui"/>
           <role rolename="manager-script"/>
-          <user username="admin" password="admin123" roles="manager-gui,manager-script"/>
+          <user username="tomcat" password="tomcat" roles="manager-gui,manager-script"/>
 
     - name: Allow remote access to Manager App
       replace:
