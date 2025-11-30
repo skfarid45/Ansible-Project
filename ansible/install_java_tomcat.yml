@@ -45,7 +45,7 @@
       args:
         removes: /opt/tomcat/apache-tomcat-{{ tomcat_version }}
 
-    - name: Change ownership of Tomcat directory
+    - name: Set correct permissions for Tomcat directory
       file:
         path: /opt/tomcat
         state: directory
@@ -92,5 +92,30 @@
         state: started
         enabled: yes
 
+    # ------------------ TOMCAT MANAGER CONFIG FIX ------------------
 
+    - name: Add Tomcat Manager user
+      blockinfile:
+        path: /opt/tomcat/latest/conf/tomcat-users.xml
+        insertafter: "</tomcat-users>"
+        content: |
+          <role rolename="manager-gui"/>
+          <role rolename="manager-script"/>
+          <user username="admin" password="admin123" roles="manager-gui,manager-script"/>
 
+    - name: Allow remote access to Manager App
+      replace:
+        path: /opt/tomcat/latest/webapps/manager/META-INF/context.xml
+        regexp: '(<Valve.*RemoteAddrValve.*>)'
+        replace: '<!-- \1 -->'
+
+    - name: Allow remote access to Host Manager App
+      replace:
+        path: /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
+        regexp: '(<Valve.*RemoteAddrValve.*>)'
+        replace: '<!-- \1 -->'
+
+    - name: Restart Tomcat after configuration changes
+      systemd:
+        name: tomcat
+        state: restarted
